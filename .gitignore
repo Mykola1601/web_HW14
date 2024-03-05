@@ -1,0 +1,8 @@
+.env
+__pycache__
+postgres-data/
+test.py
+
+db.sqlite3
+uploads/*
+src/conf/config.py
