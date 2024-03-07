@@ -35,10 +35,11 @@ app.add_middleware(
     allow_methods=["*"],        # GET,POST...
     allow_headers=["*"]         )
 
+
 BASE_DIR = Path(".")
-
-
-app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+BASE_DIR = Path(__file__).parent
+directory = BASE_DIR.joinpath("static")
+app.mount("/static", StaticFiles(directory=directory), name="static")
 app.add_middleware(CustomHeaderMiddleware)
 
 
