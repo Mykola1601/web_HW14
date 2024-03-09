@@ -28,7 +28,8 @@ class Contact(Base):
     updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
     user_id =  Column(Integer, ForeignKey("users.id"),nullable=True)
     user = relationship("User" , backref="contacts", lazy="joined")
-
+    def __str__(self) -> str:
+        return f'-------{self.birthday}'
 
 class User(Base):
     __tablename__ = "users"

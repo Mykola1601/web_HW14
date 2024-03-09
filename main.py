@@ -36,7 +36,7 @@ app.add_middleware(
     allow_headers=["*"]         )
 
 
-BASE_DIR = Path(".")
+# BASE_DIR = Path(".")
 BASE_DIR = Path(__file__).parent
 directory = BASE_DIR.joinpath("static")
 app.mount("/static", StaticFiles(directory=directory), name="static")
@@ -49,7 +49,6 @@ app.include_router(contacts.router, prefix='/api')
 
 
 banned_ips = [ip_address("192.168.1.1"), ip_address("192.168.1.2") ]
-
 
 @app.middleware("http")
 async def ban_ips(request: Request, call_next: Callable):

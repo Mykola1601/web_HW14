@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, EmailStr, PastDate
+from pydantic import BaseModel, Field, EmailStr, PastDate, ConfigDict
 from src.database.models import User
 
 from src.schemas.auth import UserResponse
@@ -24,10 +24,8 @@ class ContactResponse(ContactModel):
     created_at: datetime | None
     updated_at: datetime | None
     user: UserResponse | None
-    # user_id: int
+    model_config=  ConfigDict(from_attributes = True) 
 
-    class Config:
-        orm_mode = True
 
 
 class ContactUpdate(ContactModel):

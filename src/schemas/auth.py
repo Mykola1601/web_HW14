@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, EmailStr, PastDate
+from pydantic import BaseModel, Field, EmailStr, PastDate, ConfigDict
 
 from src.database.models import Role
 
@@ -18,9 +18,7 @@ class UserResponse(UserModel):
     avatar: str | None
     created_at: datetime
     role: Role | None
-
-    class Config:
-        from_attributes = True
+    model_config=  ConfigDict(from_attributes = True) 
 
 
 class UsertUpdate(UserModel):

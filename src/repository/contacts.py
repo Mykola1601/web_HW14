@@ -62,7 +62,7 @@ async def find_contacts_by_birthday_month_and_day(db: Session, month: int, day: 
     result = contacts.scalars().all()
     return result
 
-async def find_contacts_delta_time(contact_find_days: int, db: Session, user:User) -> List[Contact]:
+async def find_contacts_delta_time(contact_find_days: int, db: Session) -> List[Contact]:
     """
     Retrieves a list of contacts in clothers days range.
 
@@ -101,27 +101,27 @@ async def get_contacts(skip: int, limit: int, db: Session, user:User) -> List[Co
     """
     query = select(Contact).filter_by(user=user).offset(skip).limit(limit)
     contacts = await db.execute(query)
-    return contacts.scalars().all()
-        
+    return contacts.scalars().all() # type: ignore
+
 
 async def get_all_contacts(skip: int, limit: int, db: Session) -> List[Contact]:
     """
-    Retrieves a list of contacts for a specific user with specified pagination parameters.
+        Retrieves a list of contacts for a specific user with specified pagination parameters.
 
-    :param skip: The number of contacts to skip.
-    :type skip: int
-    :param limit: The maximum number of contacts to return.
-    :type limit: int
-    :param user: The user to retrieve contacts for.
-    :type user: User
-    :param db: The database session.
-    :type db: Session
-    :return: A list of contacts.
-    :rtype: List[Contacts]
+        :param skip: The number of contacts to skip.
+        :type skip: int
+        :param limit: The maximum number of contacts to return.
+        :type limit: int
+        :param user: The user to retrieve contacts for.
+        :type user: User
+        :param db: The database session.
+        :type db: Session
+        :return: A list of contacts.
+        :rtype: List[Contacts]
     """
     query = select(Contact).offset(skip).limit(limit)
     contacts = await db.execute(query)
-    return contacts.scalars().all()
+    return contacts.scalars().all()  # type: ignore
         
 
 async def get_contact(contact_id: int, db: Session, user:User) -> Contact | None:
@@ -174,7 +174,7 @@ async def update_contact(contact_id: int, body: ContactUpdate, db: Session, user
     contact = result.scalar_one_or_none()
     if contact:
         contact.first_name = body.first_name
-        contact.second_name = body.second_name
+        contact.second_name = body.second_name   # type: ignore
         contact.mail = body.mail
         contact.birthday = body.birthday
         contact.addition = body.addition

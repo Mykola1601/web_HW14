@@ -19,6 +19,11 @@ fastapi-limiter = "^0.1.6"
 jinja2 = "^3.1.3"
 cloudinary = "1.37.0"
 sphinx = "^7.2.6"
+sqlalchemy = "^2.0.28"
+uvicorn = "^0.27.1"
+fastapi = "^0.110.0"
+pytest = "^8.0.2"
+pydantic = {extras = ["email"], version = "^2.6.3"}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -27,3 +32,10 @@ sphinx = "^7.2.6"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+testpaths = [
+    "tests", 
+]
+pythonpath = "."
