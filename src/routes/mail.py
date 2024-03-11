@@ -7,7 +7,7 @@ from fastapi_mail import FastMail, MessageSchema, MessageType
 from pydantic import EmailStr, BaseModel
 from typing import List
 
-from src.conf.config import conf
+from src.conf.config import config
 
 
 router = APIRouter(prefix='/mails', tags=["mails"])
@@ -25,7 +25,7 @@ async def send_in_background(background_tasks: BackgroundTasks, body: EmailSchem
         subtype=MessageType.html
     )
 
-    fm = FastMail(conf)
+    fm = FastMail(config)
 
     background_tasks.add_task(fm.send_message, message, template_name="example_email.html")
 

@@ -1,9 +1,9 @@
 import enum
 from sqlalchemy import Column, Integer, String, Boolean, func, Table, Date, Enum
-from sqlalchemy.orm import relationship, DeclarativeBase
+from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import DateTime
-# from sqlalchemy.ext.declarative import declarative_base
+from datetime import date
 
 
 class Base(DeclarativeBase):
@@ -31,18 +31,36 @@ class Contact(Base):
     def __str__(self) -> str:
         return f'-------{self.birthday}'
 
+# class User(Base):
+#     __tablename__ = "users"
+#     id = Column(Integer, primary_key=True)
+#     username = Column(String(255), nullable=False)
+#     mail = Column(String(160), unique=True)
+#     password = Column(String(255), nullable=False)
+#     avatar = Column(String(255), nullable=True)
+#     refresh_token = Column(String(255), nullable=True)
+#     created_at = Column('created_at', DateTime, default=func.now(), nullable=True)
+#     updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
+#     role = Column("role", Enum(Role), default=Role.user) #, nullable=True
+#     confirmed = Column("confirmed", Boolean, default=False)
+
+
 class User(Base):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
-    username = Column(String(255), nullable=False)
-    mail = Column(String(160), unique=True)
-    password = Column(String(255), nullable=False)
-    avatar = Column(String(255), nullable=True)
-    refresh_token = Column(String(255), nullable=True)
-    created_at = Column('created_at', DateTime, default=func.now(), nullable=True)
-    updated_at = Column('updated_at', DateTime, default=func.now(), onupdate=func.now())
-    role = Column("role", Enum(Role), default=Role.user) #, nullable=True
-    confirmed = Column("confirmed", Boolean, default=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(50))
+    mail: Mapped[str] = mapped_column(String(150), nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
+    avatar: Mapped[str] = mapped_column(String(255), nullable=True)
+    refresh_token: Mapped[str] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[date] = mapped_column("created_at", DateTime, default=func.now())
+    updated_at: Mapped[date] = mapped_column(
+        "updated_at", DateTime, default=func.now(), onupdate=func.now()
+    )
+    role: Mapped[Enum] = mapped_column(
+        "role", Enum(Role), default=Role.user, nullable=True
+    )
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
 
 
 

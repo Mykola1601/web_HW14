@@ -1,4 +1,5 @@
-
+import os
+import re
 import uvicorn
 import pathlib
 from pathlib import Path
@@ -24,9 +25,7 @@ MAX_FILE_SIZE = 1_000_000  # 1Mb
 
 app = FastAPI()
 
-origins = [ 
-    "*",
-    ]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,27 +35,44 @@ app.add_middleware(
     allow_headers=["*"]         )
 
 
-# BASE_DIR = Path(".")
-BASE_DIR = Path(__file__).parent
-directory = BASE_DIR.joinpath("static")
-app.mount("/static", StaticFiles(directory=directory), name="static")
-app.add_middleware(CustomHeaderMiddleware)
-
-
-app.include_router(users.router, prefix='/api')
-app.include_router(auth.router, prefix='/api')
-app.include_router(contacts.router, prefix='/api')
-
-
 banned_ips = [ip_address("192.168.1.1"), ip_address("192.168.1.2") ]
 
 @app.middleware("http")
 async def ban_ips(request: Request, call_next: Callable):
-    ip = ip_address(request.client.host)
-    if ip in banned_ips:
-        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"})
+    if request.client is None:
+        pass
+    else:
+        ip = ip_address(request.client.host)
+        if ip in banned_ips:
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"})
     response = await call_next(request)
     return response
+
+
+user_agent_ban_list = [r"Googlebot", r"Python-urllib"]
+
+@app.middleware("http")
+async def user_agent_ban_middleware(request: Request, call_next: Callable):
+    print(request.headers.get("Authorization"))
+    user_agent = request.headers.get("user-agent")
+    print(user_agent)
+    for ban_pattern in user_agent_ban_list:
+        if re.search(ban_pattern, user_agent): # type: ignore
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={"detail": "You are banned"},
+            )
+    response = await call_next(request)
+    return response
+
+
+BASE_DIR = Path(__file__).parent
+directory = BASE_DIR.joinpath("src").joinpath("static")
+app.mount("/static", StaticFiles(directory=directory), name="static")
+
+app.include_router(users.router, prefix='/api')
+app.include_router(auth.router, prefix='/api')
+app.include_router(contacts.router, prefix='/api')
 
 
 @app.on_event("startup")
@@ -84,7 +100,6 @@ async def healthchecker(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Error connecting to the database")
-
 
 
 @app.post("/uploadfile/")

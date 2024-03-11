@@ -1,5 +1,5 @@
-from sqlalchemy import text
-from sqlalchemy.orm import Session
+
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import FileResponse
 from fastapi_limiter.depends import RateLimiter
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
@@ -15,9 +15,8 @@ router = APIRouter(prefix='/auth', tags=["auth"])
 get_refresh_token = HTTPBearer()
 
 
-@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED,
-            dependencies=[Depends(RateLimiter(times=2, seconds=5))])
-async def signup(body: UserModel, bt:BackgroundTasks, request:Request, db: Session = Depends(get_db)):
+@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def signup(body: UserModel, bt:BackgroundTasks, request:Request, db: AsyncSession = Depends(get_db)):
     exist_user = await repository_users.get_user_by_mail(body.mail, db)
     if exist_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT , detail="Account allready exist")
@@ -28,7 +27,7 @@ async def signup(body: UserModel, bt:BackgroundTasks, request:Request, db: Sessi
 
 
 @router.post("/login", response_model = TokenModel,  dependencies=[Depends(RateLimiter(times=2, seconds=5))])
-async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user = await repository_users.get_user_by_mail(body.username , db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user")
@@ -44,7 +43,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 
 
 @router.get('/refresh_token', response_model = TokenModel)
-async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token), db: Session = Depends(get_db)):
+async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token), db: AsyncSession = Depends(get_db)):
     token = credentials.credentials
     mail = await auth_service.decode_refresh_token(token)
     user = await repository_users.get_user_by_mail(mail, db)
@@ -58,7 +57,7 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 @router.get('/confirmed_email/{token}')
-async def confirmed_email(token: str, db: Session = Depends(get_db)):
+async def confirmed_email(token: str, db: AsyncSession = Depends(get_db)):
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_mail(email, db)
     if user is None:
@@ -71,7 +70,7 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
 
 @router.post('/request_email',  dependencies=[Depends(RateLimiter(times=1, seconds=5))])
 async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, request: Request,
-                        db: Session = Depends(get_db)):
+                        db: AsyncSession = Depends(get_db)):
     user = await repository_users.get_user_by_mail(body.mail, db)
 
     if user.confirmed:
@@ -82,7 +81,7 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
 
 
 @router.get("/{username}")
-async def request_email(username:str, response: Response,  db: Session = Depends(get_db)):
+async def request_email(username:str, response: Response,  db: AsyncSession = Depends(get_db)):
     print(f"{username} user open email -> save tu db ")
     return FileResponse("static/1x1.png", media_type="image/png", content_disposition_type="inline")
 

@@ -8,13 +8,13 @@ from src.database.models import Role
 class UserModel(BaseModel):
     username: str = Field(max_length=50, min_length=3)
     mail: EmailStr = Field(max_length=60, min_length=6)
-    password: str = Field(min_length=4, max_length=300)
+    password: str = Field(min_length=4, max_length=100)
 
 
-class UserResponse(UserModel):
+class UserResponse(BaseModel):
     id: int
     username: str
-    mail: str  
+    mail: EmailStr
     avatar: str | None
     created_at: datetime
     role: Role | None
