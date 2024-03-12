@@ -18,7 +18,6 @@ from fastapi import FastAPI, File, UploadFile, status, HTTPException, Depends, R
 from src.database.db import get_db
 from src.conf.config import config
 from src.routes import  contacts, auth, users
-from middlewares import CustomHeaderMiddleware
 
 
 MAX_FILE_SIZE = 1_000_000  # 1Mb
@@ -35,18 +34,18 @@ app.add_middleware(
     allow_headers=["*"]         )
 
 
-banned_ips = [ip_address("192.168.1.1"), ip_address("192.168.1.2") ]
+banned_ips = [ip_address("192.168.1.15"), ip_address("192.168.81.2") ]
 
-@app.middleware("http")
-async def ban_ips(request: Request, call_next: Callable):
-    if request.client is None:
-        pass
-    else:
-        ip = ip_address(request.client.host)
-        if ip in banned_ips:
-            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"})
-    response = await call_next(request)
-    return response
+# @app.middleware("http")
+# async def ban_ips(request: Request, call_next: Callable):
+#     if request.client is None:
+#         pass
+#     else:
+#         ip = ip_address(request.client.host)
+#         if ip in banned_ips:
+#             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"detail": "You are banned"})
+#     response = await call_next(request)
+#     return response
 
 
 user_agent_ban_list = [r"Googlebot", r"Python-urllib"]
@@ -77,7 +76,11 @@ app.include_router(contacts.router, prefix='/api')
 
 @app.on_event("startup")
 async def startup():
-    r = await redis.Redis(host=config.REDIS_DOMAIN, port=config.REDIS_PORT, db=0, encoding="utf-8", password=config.REDIS_PASS)
+    r = await redis.Redis(
+        host=config.REDIS_DOMAIN, 
+        port=config.REDIS_PORT, 
+        db=0, encoding="utf-8", 
+        password=config.REDIS_PASS)
     await FastAPILimiter.init(r)
     
 
@@ -85,7 +88,8 @@ templates = Jinja2Templates(directory=BASE_DIR / "src" / "templates")
 
 @app.get("/", response_class=HTMLResponse )
 def index(request:Request):
-    return templates.TemplateResponse("index.html", {"request":request, "our":"Build group python"})
+    return templates.TemplateResponse(
+        "index.html", {"request":request, "our":"Build group python"})
 
 
 @app.get("/api/healthchecker")
@@ -122,7 +126,7 @@ async def upload_file(file: UploadFile = File()):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run("main:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), log_level="info")
 
 
 # docker-compose up

@@ -26,8 +26,7 @@ async  def get_current_user(user:User=Depends(auth_service.get_current_user)):
     return user
 
 
-@router.patch("/avatar", response_model=UserResponse,
-                dependencies=[Depends(RateLimiter(times=2, seconds=5))])
+@router.patch("/avatar", response_model=UserResponse, dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 async  def get_current_photo(file:UploadFile=File(), user:User=Depends(auth_service.get_current_user),
                             db: Session = Depends(get_db)):
     public_id = f"python/{user.mail}"

@@ -98,7 +98,7 @@ class Auth:
             self.cache.expire(user_hash, time=600)
         else:
             print("user from ceche")
-            user = pickle.loads(user) # type: ignore
+            user = pickle.loads(user) 
         return user
 
 

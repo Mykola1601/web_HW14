@@ -18,7 +18,7 @@ engine = create_async_engine(
 )
 TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False) 
 
-test_user = {"username": "deadpool", "email": "deadpool@example.com", "password": "123456789"}
+test_user = {"username": "deadpool", "mail": "deadpool@example.com", "password": "123456789"}
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -29,7 +29,7 @@ def init_models_wrap():
             await conn.run_sync(Base.metadata.create_all)
         async with TestingSessionLocal() as session:
             hash_password = auth_service.get_password_hash(test_user["password"])
-            current_user = User(username=test_user["username"], mail=test_user["email"], 
+            current_user = User(username=test_user["username"], mail=test_user["mail"], 
                             password=hash_password, confirmed=True, role="admin")
             session.add(current_user)
             await session.commit()
@@ -38,7 +38,6 @@ def init_models_wrap():
 
 @pytest.fixture(scope="module")
 def client():
-    # Dependency override
     async def override_get_db():
         session = TestingSessionLocal()
         try:
@@ -56,7 +55,7 @@ def client():
 
 @pytest_asyncio.fixture()
 async def get_token():
-    token = await auth_service.create_access_token(data={"sub": test_user["email"]})
+    token = await auth_service.create_access_token(data={"sub": test_user["mail"]})
     return token
 
 

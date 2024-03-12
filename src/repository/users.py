@@ -7,7 +7,7 @@ from src.database.models import User
 from src.schemas.auth import UserModel
 
 
-async def get_user_by_mail(mail : str, db:AsyncSession=Depends(get_db)) -> User:
+async def get_user_by_mail(mail : str, db:AsyncSession=Depends(get_db)):
     """
     Retrieves a single user with the specified email for a specific user.
 
@@ -39,7 +39,7 @@ async def create_user(body:UserModel, db:AsyncSession=Depends(get_db) ):
     return new_user
 
 
-async def update_token(user:User, token:str | None, db:AsyncSession):
+async def update_token(user:User, token: str | None, db:AsyncSession):
     user.refresh_token = token
     await db.commit()
 

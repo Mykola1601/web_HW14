@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import FileResponse
 from fastapi_limiter.depends import RateLimiter
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
-from fastapi import APIRouter, HTTPException, Depends, status, Path, BackgroundTasks, Request, Response
+from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks, Request, Response
 from src.database.db import get_db
 from src.services.mail import send_email
 from src.services.auth import auth_service 
@@ -32,7 +32,7 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user")
     if not user.confirmed:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email verifi")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not confirmed")
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid pass")
     # Generate JWT
@@ -81,7 +81,7 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
 
 
 @router.get("/{username}")
-async def request_email(username:str, response: Response,  db: AsyncSession = Depends(get_db)):
+async def request_mail(username:str, response: Response,  db: AsyncSession = Depends(get_db)):
     print(f"{username} user open email -> save tu db ")
     return FileResponse("static/1x1.png", media_type="image/png", content_disposition_type="inline")
 

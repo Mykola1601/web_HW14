@@ -16,7 +16,7 @@ class UserResponse(BaseModel):
     username: str
     mail: EmailStr
     avatar: str | None
-    created_at: datetime
+    # created_at: datetime
     role: Role | None
     model_config=  ConfigDict(from_attributes = True) 
 
@@ -26,7 +26,8 @@ class UsertUpdate(UserModel):
     second_name: str 
     mail: EmailStr  
     birthday: PastDate 
-    addition: str 
+    addition: str | None
+    role: Role | None
     created_at: datetime
 
     
