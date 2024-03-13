@@ -90,14 +90,14 @@ class Auth:
         user = self.cache.get(user_hash)
 
         if user is None:
-            print("user from DB")
+            # print("user from DB")
             user = await reposytory_users.get_user_by_mail(email, db)
             if user is None:
                 raise credentials_exception
             self.cache.set(user_hash, pickle.dumps(user))
             self.cache.expire(user_hash, time=600)
         else:
-            print("user from ceche")
+            # print("user from ceche")
             user = pickle.loads(user) 
         return user
 

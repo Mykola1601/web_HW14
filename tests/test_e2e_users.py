@@ -31,7 +31,7 @@ def test_patch_avatar(client, get_token, monkeypatch):
         user_data = response.json()
         assert "username" in user_data
         assert "mail" in user_data
-        # assert user_data["mail"] == "deadpool@example.com"
+        assert user_data["mail"] == "deadpool@example.com"
 
 
         

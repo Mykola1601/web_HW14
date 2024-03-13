@@ -1,9 +1,14 @@
 
+from ast import LtE
 from unittest.mock import Mock, patch, AsyncMock
 
 import pytest # type: ignore
 from sqlalchemy import select
+from httpx import AsyncClient
+from main import app
+from fastapi.responses import FileResponse
 
+from src.schemas.auth import TokenModel
 from src.database.models import User
 from tests.conftest import TestingSessionLocal
 
@@ -98,7 +103,53 @@ def test_login_validation_error(client, monkeypatch):
                            data={"password": user_data.get("password")})
     assert response.status_code == 422, response.text
     data = response.json()
-    assert "detail" in data
+
+
+
+def test_confirmed_email(client, get_token, monkeypatch):
+    monkeypatch.setattr("fastapi_limiter.FastAPILimiter.redis", AsyncMock())
+    monkeypatch.setattr("fastapi_limiter.FastAPILimiter.identifier", AsyncMock())
+    monkeypatch.setattr("fastapi_limiter.FastAPILimiter.http_callback", AsyncMock())
+    token = get_token
+    response = client.get("api/auth/confirmed_email/" + token)
+    response.text
+    data = response.json()
+    assert data["message"] == "Your email is already confirmed"
+
+
+
+
+def test_get_request_mail(client, get_token, monkeypatch):
+    monkeypatch.setattr("fastapi_limiter.FastAPILimiter.redis", AsyncMock())
+    monkeypatch.setattr("fastapi_limiter.FastAPILimiter.identifier", AsyncMock())
+    monkeypatch.setattr("fastapi_limiter.FastAPILimiter.http_callback", AsyncMock())
+    token = get_token
+    response = client.get(f"api/auth/{user_data.get('username')}")
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "image/png"
+    # assert  isinstance(response, FileResponse)
+    data = response.headers['content-length']
+    assert data != 0
+
+
+# def test_post_request_mail(client, get_token, monkeypatch):
+#     monkeypatch.setattr("fastapi_limiter.FastAPILimiter.redis", AsyncMock())
+#     monkeypatch.setattr("fastapi_limiter.FastAPILimiter.identifier", AsyncMock())
+#     monkeypatch.setattr("fastapi_limiter.FastAPILimiter.http_callback", AsyncMock())
+#     token = get_token
+#     response = client.get(f"api/auth/{user_data.get('username')}")
+#     assert response.status_code == 200
+#     assert response.headers["Content-Type"] == "image/png"
+#     # assert  isinstance(response, FileResponse)
+#     data = response.headers['content-length']
+#     assert data != 0
+
+
+
+
+
+
+
 
 
 

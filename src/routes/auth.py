@@ -83,5 +83,5 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
 @router.get("/{username}")
 async def request_mail(username:str, response: Response,  db: AsyncSession = Depends(get_db)):
     print(f"{username} user open email -> save tu db ")
-    return FileResponse("static/1x1.png", media_type="image/png", content_disposition_type="inline")
+    return FileResponse("src/static/1x1.png", media_type="image/png", content_disposition_type="inline")
 

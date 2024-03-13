@@ -31,7 +31,7 @@ async def read_contacts(contacts_find_days: int = 0, contacts_find_data: str = "
     contacts = await repository_contacts.get_contacts(skip, limit, db, user)
     if contacts:
         return contacts
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found!")
 
 
 @router.get("/all", response_model=List[ContactResponse] | None,
