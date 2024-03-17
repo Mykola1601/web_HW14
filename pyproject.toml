@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "hw13"
+name = "api16"
 version = "0.1.0"
 description = ""
 authors = ["Mykola1601 <nik160186@gmail.com>"]
